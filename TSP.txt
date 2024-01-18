@@ -1,0 +1,161 @@
+import java.util.*;
+
+public class TSP {
+
+    private static int[][] graph; 
+    private static int numCities;   
+    private static boolean[] visited;  
+    private static int minCost = Integer.MAX_VALUE;  
+    private static int travelcost=Integer.MAX_VALUE;
+    private static int[] minTourCopy;
+    private static int[] minTour;  
+
+    public static int tsp(int[][] adjacencyMatrix, int startCity) {
+        numCities = adjacencyMatrix.length;
+        graph = adjacencyMatrix;
+        visited = new boolean[numCities];
+        minTour = new int[numCities];
+        minCost = Integer.MAX_VALUE;  
+        minTourCopy = new int[numCities];
+        Arrays.fill(minTour, -1);
+        
+        visited[startCity] = true;
+        minTour[0] = startCity;
+
+        
+        tspUtil(1, startCity, 0);
+
+        return minCost;
+    }
+    private static void tspUtil(int level, int currentCity, int currentCost) {
+        
+        if (level == numCities) {
+             if (currentCost < minCost) {
+                minCost = currentCost;
+                System.arraycopy(minTour, 0, minTourCopy, 0, numCities);
+            }
+            return;
+        }
+
+        for (int i = 0; i < numCities; i++) {
+            if (!visited[i] && graph[currentCity][i] != 0) {
+                visited[i] = true;
+                minTour[level] = i;
+                tspUtil(level + 1, i, currentCost + graph[currentCity][i]);
+                visited[i] = false;
+            }
+        }
+    }
+
+    
+    
+    
+    public static void Tonames(String[] name,int[] tour){
+        for(int i=0;i<name.length;i++){
+            System.out.print(name[tour[i]] + " ");
+        }
+        System.out.println(); 
+        System.out.println();
+    }
+    
+    public static void main(String[] args) {
+        Scanner sc=new Scanner(System.in);
+        //System.out.print("ENTER FRIENDS NAMES: ");
+        //String str=sc.nextLine();
+        String str="Ram sam paul john raj";
+        String names[]=str.split(" ");
+        int cities=names.length;
+        int transcost=0;
+        //int[][] adjacencyMatrix=new int[cities][cities];
+        int[][] costmatrix=new int[cities][cities];
+        int[][] adjacencyMatrix={{0, 3, 0, 4, 2},{3, 0, 6, 0, 1},{0, 6, 0, 4, 0},{4, 0, 4, 0, 10},{2, 1, 0, 10, 0}};
+        //int[][] costmatrix={{0, 70, 0, 90, 50}, {70, 0, 130, 0, 50}, {0, 130, 0, 90, 0}, {90, 0, 90, 0, 210}, {50, 50, 0, 210, 0} };
+        System.out.println("Choose mode of travel:\n 1.Auto(Rs 50 for <2km or plus Rs 20 for every extra km)\n 2.Taxi(Rs70 for <2km or plus Rs 40 for every extra km)\n");
+        int mode=sc.nextInt();
+        if(mode>3){
+            System.out.println("!! Enter valid choice !!");
+            return;
+        }
+        
+       
+        
+        System.out.println("Enter distance between friends houses: ");
+        
+        for (int i = 0; i < cities; i++) {
+            for (int j = i+1; j < cities; j++) {
+                if (i != j) {
+                    //System.out.println("Distance from " + names[i] + "'s house to " + names[j] + "'s house :");
+                    //adjacencyMatrix[i][j] = sc.nextInt();
+                    //adjacencyMatrix[j][i]=adjacencyMatrix[i][j];
+                    switch(mode){
+                         case 1:
+                        {   
+                            transcost=50;
+                            costmatrix[i][j]=transcost;
+                            if(adjacencyMatrix[i][j]>2){
+                                costmatrix[i][j]+=20*(adjacencyMatrix[i][j]-2);
+                            }
+                            break;
+                        }
+                        case 2:
+                        {   
+                            transcost=70;
+                            costmatrix[i][j]=transcost;
+                            if(adjacencyMatrix[i][j]>2){
+                                costmatrix[i][j]+=40*(adjacencyMatrix[i][j]-2);
+                            }
+                            break;
+                        }
+                    }
+                    costmatrix[j][i]=costmatrix[i][j];
+                }
+                else {
+                    
+                //    adjacencyMatrix[i][j] = 0;
+                    costmatrix[i][j]=0;
+                }
+                if(adjacencyMatrix[i][j]==0)
+                 {   costmatrix[i][j]=0;
+                    costmatrix[j][i]=0;}
+            }
+        }
+        
+        
+        
+        //DISTANCE CALCULATION
+        int startCity = 0;
+        int minTourCost = tsp(adjacencyMatrix, startCity);
+        int[] minitour=new int[cities];
+        for (int i = 0; i < cities; i++) {
+            minitour[i] = minTour[i];
+        }
+        System.out.println();
+        System.out.println("Minimum Distance: " + (minTourCost+minTour[minitour[cities-1]]) +" ");
+        System.out.print("Order by Distance - ");
+        System.out.println(Arrays.toString(minTourCopy));
+        Tonames(names,minTourCopy);
+        
+        /*//DISTANCE MATRIX
+        for (int i = 0; i < cities; i++) {
+            System.out.println(Arrays.toString(adjacencyMatrix[i]));
+        }*/
+        //COST MATRIX
+        for (int i = 0; i < cities; i++) {
+            System.out.println(Arrays.toString(costmatrix[i])+" ");
+        }
+
+        //COST CALCULATION
+        int travelstart=0;
+        minTourCost = tsp(costmatrix, travelstart);
+        minitour=new int[cities];
+        for (int i = 0; i < cities; i++) {
+            minitour[i] = minTour[i];
+        }
+        
+        System.out.println("Minimum Travel Cost: Rs" + (minTourCost+costmatrix[minTour[cities - 1]][0])+" ");
+        System.out.print("Order by cost - ");
+        System.out.println(Arrays.toString(minTourCopy));
+        Tonames(names,minTourCopy);
+        
+    }
+}
